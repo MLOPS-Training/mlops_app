@@ -13,9 +13,10 @@ from sklearn.metrics import classification_report
 from sklearn.feature_extraction.text import TfidfVectorizer
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-import seaborn as sns
 from wordcloud import WordCloud
 import plotly.express as px
+import pyarrow.parquet as pq
+import pyarrow as pa
 
 from mlops_app.lemmatizer import Lemmatizer
 
@@ -63,7 +64,6 @@ def save_figure(figure, filename, output_folder='monitoring_elements'):
     plt.close()
 
 
-
 def load_processed_file_hashes():
     """Load processed file hashes from the file."""
     if PROCESSED_FILE_HASHES_FILE.exists():
@@ -104,29 +104,10 @@ def pre_processed_csv(file_path: Path):
     # Plot personality type pie chart using Plotly Express
     fig = px.pie(mbti, names='type', title='Personality type', hole=0.3)
 
-    # Create a Matplotlib subplot
-    fig_subplots = make_subplots(rows=1, cols=1)
-
-    # Iterate over each trace in the Plotly figure and add it to the subplot
-    for trace in fig['data']:
-        if trace.type == 'pie':
-            # Extract relevant information from the pie trace
-            labels = trace.labels
-            values = trace.values
-            hole = trace.hole
-
-            # Create a subplot for the pie chart
-            fig_subplots.add_trace(trace)
-
     # Save the Plotly figure as HTML (optional)
     output_folder = 'monitoring_elements'
     os.makedirs(output_folder, exist_ok=True)  # Create the folder if it doesn't exist
-
-    # Save the Plotly figure as HTML (optional)
-    fig_subplots.write_html('monitoring_elements/personality_pie_chart.html')
-
-    # Display the Plotly figure if needed
-    fig_subplots.show()
+    fig.write_html('monitoring_elements/personality_pie_chart.html')
 
     # Create a Matplotlib subplot
     fig_subplots = make_subplots(rows=1, cols=1)
@@ -143,7 +124,7 @@ def pre_processed_csv(file_path: Path):
             fig_subplots.add_trace(trace)
 
     # Display the Plotly figure if needed
-    fig_subplots.show()
+    #fig_subplots.show()
 
     # TfidfVectorizer with Lemmatizer
     vectorizer = TfidfVectorizer(max_features=5000, stop_words='english', tokenizer=Lemmatizer())
@@ -175,14 +156,23 @@ def pre_processed_csv(file_path: Path):
 
     # Append the preprocessed data to the curated parquet file
     curated_parquet_path = CURATED_DATA_DIR / 'curated_data.parquet'
+
     if not curated_parquet_path.exists():
         # If the parquet file doesn't exist, create it
-        pd.DataFrame(mbti).to_parquet(curated_parquet_path, index=False)
+        table = pa.Table.from_pandas(mbti)
+        with pq.ParquetWriter(str(curated_parquet_path), table.schema) as writer:
+            writer.write_table(table)
+        # show the 1025 element of the parquet file (just for testing that the parquet file is created correctly)
+        print(pq.read_table(str(curated_parquet_path)).to_pandas().iloc[1025])
     else:
-        # If the parquet file exists, append the new data
-        curated_data = pd.read_parquet(curated_parquet_path)
-        curated_data = pd.concat([curated_data, pd.DataFrame(mbti, columns=['posts'])], ignore_index=True)
-        curated_data.to_parquet(curated_parquet_path, index=False)
+        # If the parquet file exists, read existing data and append the new data
+        existing_data = pq.read_table(str(curated_parquet_path)).to_pandas()
+        new_data = pd.concat([existing_data, mbti], ignore_index=True)
+
+        # Write the combined data back to the Parquet file
+        table = pa.Table.from_pandas(new_data)
+        with pq.ParquetWriter(str(curated_parquet_path), table.schema) as writer:
+            writer.write_table(table)
 
         print(f"Appended {file_name} to curated_data.parquet")
 
