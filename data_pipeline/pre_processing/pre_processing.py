@@ -17,7 +17,7 @@ import seaborn as sns
 from wordcloud import WordCloud
 import plotly.express as px
 
-from mlops_app.app.lemmatizer import Lemmatizer
+from mlops_app.lemmatizer import Lemmatizer
 
 warnings.filterwarnings('ignore')
 
