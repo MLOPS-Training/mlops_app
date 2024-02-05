@@ -38,22 +38,6 @@ def predict():
         prediction = target_encoder.inverse_transform(model_log.predict(post_vectorized))[0]
         return render_template('result.html', prediction=prediction)
     
-@app.route('/monitoring', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
-        return 'No file part'
-    file = request.files['file']
-    if file.filename == '':
-        return 'No selected file'
-    if file and file.filename.endswith('.csv'):
-        filename = secure_filename(file.filename)
-        saved_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(saved_file_path)
-        # Process the file
-        output_html_path = pre_processed_csv(Path(saved_file_path))
-        return send_file(output_html_path, mimetype='text/html')
-    else:
-        return 'Invalid file type'
 
 
 if __name__ == '__main__':
