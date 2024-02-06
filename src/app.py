@@ -15,26 +15,19 @@ nltk.download("wordnet")
 warnings.filterwarnings("ignore")
 
 app = Flask(__name__)
-app.config["UPLOAD_FOLDER"] = "../data_pipeline/data/raw"
+app.config["UPLOAD_FOLDER"] = "./src/data_pipeline/data/raw"
 if not os.path.exists(app.config["UPLOAD_FOLDER"]):
     os.makedirs(app.config["UPLOAD_FOLDER"])
 
-print(f"{sys.path} ICIIIIIII")
-
 # Load the trained model and necessary preprocessing objects
-model_log = joblib.load("joblibs/logistic_regression_model.joblib")
-vectorizer = joblib.load("joblibs/tfidf_vectorizer.joblib")
-target_encoder = joblib.load("joblibs/label_encoder.joblib")
+model_log = joblib.load("./src/joblibs/logistic_regression_model.joblib")
+vectorizer = joblib.load("./src/joblibs/tfidf_vectorizer.joblib")
+target_encoder = joblib.load("./src/joblibs/label_encoder.joblib")
 
 
 @app.route("/")
 def home():
     return render_template("index.html")
-
-
-@app.route("/monitoring", methods=["GET"])
-def monitoring():
-    return render_template("monitoring.html")
 
 
 @app.route("/predict", methods=["POST"])
@@ -43,6 +36,11 @@ def predict():
     post_vectorized = vectorizer.transform(post).toarray()
     prediction = target_encoder.inverse_transform(model_log.predict(post_vectorized))[0]
     return render_template("result.html", prediction=prediction)
+
+
+@app.route("/monitoring", methods=["GET"])
+def monitoring():
+    return render_template("monitoring.html")
 
 
 @app.route("/monitoring", methods=["POST"])

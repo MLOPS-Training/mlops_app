@@ -11,22 +11,19 @@ import pyarrow.parquet as pq
 import plotly.express as px
 import pyarrow as pa
 import pandas as pd
-import warnings
 import hashlib
 import os
 import re
 
 
-warnings.filterwarnings("ignore")
-
 # Pathsapp
-RAW_DATA_DIR = Path("./data_pipeline/data/raw")
-PRE_CURATED_DATA_DIR = Path("./data_pipeline/data/pre_curated")
-CURATED_DATA_DIR = Path("./data_pipeline/data/curated")
+RAW_DATA_DIR = Path("./src/data_pipeline/data/raw")
+PRE_CURATED_DATA_DIR = Path("./src/data_pipeline/data/pre_curated")
+CURATED_DATA_DIR = Path("./src/data_pipeline/data/curated")
 os.makedirs(PRE_CURATED_DATA_DIR, exist_ok=True)
 os.makedirs(CURATED_DATA_DIR, exist_ok=True)
 
-PROCESSED_FILE_HASHES_FILE = Path("./data_pipeline/processed_file_hashes.txt")
+PROCESSED_FILE_HASHES_FILE = Path("./src/data_pipeline/processed_file_hashes.txt")
 
 
 def clear_text(data):
@@ -56,7 +53,7 @@ def clear_text(data):
     return cleaned_text
 
 
-def save_figure(figure, filename, output_folder="../app/static"):
+def save_figure(figure, filename, output_folder="./src/static"):
     # Create the output folder if it doesn't exist
     os.makedirs(output_folder, exist_ok=True)
 
@@ -106,10 +103,10 @@ def pre_processed_csv(file_path: Path):
     fig = px.pie(mbti, names="type", title="Personality type", hole=0.3)
 
     # Save the Plotly figure as HTML (optional)
-    output_folder = "../app/static"
+    output_folder = "./src/static"
     # Create the folder if it doesn't exist
     os.makedirs(output_folder, exist_ok=True)
-    fig.write_html("../app/static/personality_pie_chart.html")
+    fig.write_html("./src/static/personality_pie_chart.html")
 
     # Create a Matplotlib subplot
     fig_subplots = make_subplots(rows=1, cols=1)
@@ -143,7 +140,7 @@ def pre_processed_csv(file_path: Path):
         plt.imshow(wc)
 
         # Save the word cloud image directly
-        plt.savefig("../app/static/word_cloud.png", bbox_inches="tight")
+        plt.savefig("./src/static/word_cloud.png", bbox_inches="tight")
         plt.close()  # Close the figure to free up resources
     else:
         print("Not enough data to generate a word cloud.")

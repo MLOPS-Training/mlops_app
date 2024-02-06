@@ -16,14 +16,14 @@ import os
 
 
 # Paths
-RAW_DATA_DIR = Path("../data_pipeline/data/raw")
-PRE_CURATED_DATA_DIR = Path("../data_pipeline/data/pre_curated")
-CURATED_DATA_DIR = Path("../data_pipeline/data/curated")
+RAW_DATA_DIR = Path("./src/data_pipeline/data/raw")
+PRE_CURATED_DATA_DIR = Path("./src/data_pipeline/data/pre_curated")
+CURATED_DATA_DIR = Path("./src/data_pipeline/data/curated")
 os.makedirs(PRE_CURATED_DATA_DIR, exist_ok=True)
 os.makedirs(CURATED_DATA_DIR, exist_ok=True)
 
 # File to store processed file hashes
-PROCESSED_FILE_HASHES_FILE = Path("./processed_file_hashes.txt")
+PROCESSED_FILE_HASHES_FILE = Path("./src/data_pipeline/processed_file_hashes.txt")
 
 
 def load_processed_file_hashes():
