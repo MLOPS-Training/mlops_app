@@ -23,9 +23,9 @@ from mlops_app.lemmatizer import Lemmatizer
 warnings.filterwarnings('ignore')
 
 # Paths
-RAW_DATA_DIR = Path('../data/raw')
-PRE_CURATED_DATA_DIR = Path('../data/pre_curated')
-CURATED_DATA_DIR = Path('../data/curated')
+RAW_DATA_DIR = Path('../data_pipeline/data/raw')
+PRE_CURATED_DATA_DIR = Path('../data_pipeline/data/pre_curated')
+CURATED_DATA_DIR = Path('../data_pipeline/data/curated')
 os.makedirs(PRE_CURATED_DATA_DIR, exist_ok=True)
 os.makedirs(CURATED_DATA_DIR, exist_ok=True)
 
@@ -164,6 +164,7 @@ def pre_processed_csv(file_path: Path):
             writer.write_table(table)
         # show the 1025 element of the parquet file (just for testing that the parquet file is created correctly)
         print(pq.read_table(str(curated_parquet_path)).to_pandas().iloc[1025])
+        print(f"Added {file_name} to new parquet file named : curated_data.parquet")
     else:
         # If the parquet file exists, read existing data and append the new data
         existing_data = pq.read_table(str(curated_parquet_path)).to_pandas()
@@ -173,7 +174,6 @@ def pre_processed_csv(file_path: Path):
         table = pa.Table.from_pandas(new_data)
         with pq.ParquetWriter(str(curated_parquet_path), table.schema) as writer:
             writer.write_table(table)
-
         print(f"Appended {file_name} to curated_data.parquet")
 
     # Add the processed file name to the set and save to file

@@ -18,7 +18,7 @@ warnings.filterwarnings('ignore')
 
 def save_model_and_results(model, X_test, y_test, model_name):
     # Save the model as a pickle file
-    model_output_path_pickle = Path(__file__).resolve().parent / 'models_train' / f'{model_name}_model' / 'train.pkl'
+    model_output_path_pickle = Path(__file__).resolve().parent / 'models' / 'models_train' / f'{model_name}_model' / 'train.pkl'
     model_output_path_pickle.parent.mkdir(parents=True, exist_ok=True)
 
     try:
@@ -38,7 +38,7 @@ def save_model_and_results(model, X_test, y_test, model_name):
 
     # Save the DataFrame to Parquet
     results_parquet_path = Path(
-        __file__).resolve().parent / 'models_test' / f'{model_name}_model' / f'test_{model_name}.parquet'
+        __file__).resolve().parent / 'models' / 'models_test' / f'{model_name}_model' / f'test_{model_name}.parquet'
     results_parquet_path.parent.mkdir(parents=True, exist_ok=True)
     results_df.to_parquet(results_parquet_path, index=False)
 
@@ -59,34 +59,6 @@ def train_and_test_logistic_regression(train_data, test_data):
     # Train Logistic Regression model
     model_log = LogisticRegression(max_iter=3000, C=0.5, n_jobs=-1)
     model_log.fit(X_train, y_train)
-
-    # Evaluate on training data
-    train_classification_report = classification_report(y_train, model_log.predict(X_train),
-                                                        target_names=target_encoder.inverse_transform(
-                                                            [i for i in range(16)]))
-    print('Train classification report:\n', train_classification_report)
-
-    # Evaluate on test data
-    test_classification_report = classification_report(y_test, model_log.predict(X_test),
-                                                       target_names=target_encoder.inverse_transform(
-                                                           [i for i in range(16)]))
-    print('Test classification report:\n', test_classification_report)
-
-    # Save the train and test classification reports into CSV files
-    train_classification_df = pd.DataFrame.from_dict(classification_report(y_train, model_log.predict(X_train),
-                                                                           target_names=target_encoder.inverse_transform(
-                                                                               [i for i in range(16)]),
-                                                                           output_dict=True))
-    test_classification_df = pd.DataFrame.from_dict(classification_report(y_test, model_log.predict(X_test),
-                                                                          target_names=target_encoder.inverse_transform(
-                                                                              [i for i in range(16)]),
-                                                                          output_dict=True))
-
-    model_train_path = Path(__file__).resolve().parent / 'models_train' / 'logistic_regression_model'
-    model_test_path = Path(__file__).resolve().parent / 'models_test' / 'logistic_regression_model'
-
-    train_classification_df.to_csv(model_train_path/"train_classification_report.csv", index=False)
-    test_classification_df.to_csv(model_test_path/"test_classification_report.csv", index=False)
 
     # Save Logistic Regression model
     save_model_and_results(model_log, X_test, y_test, 'logistic_regression')
