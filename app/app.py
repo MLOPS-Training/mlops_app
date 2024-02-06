@@ -1,15 +1,14 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
 from pathlib import Path
 import os
 import joblib
-from data_pipeline.pre_processing.pre_processing import pre_processed_csv
+
 from lemmatizer import Lemmatizer
-
-
+from monitoring import monitor_directory
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'uploads/'
+app.config['UPLOAD_FOLDER'] = '../data_pipeline/data/raw'
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
@@ -38,7 +37,26 @@ def predict():
         prediction = target_encoder.inverse_transform(model_log.predict(post_vectorized))[0]
         return render_template('result.html', prediction=prediction)
     
-
+@app.route('/monitoring', methods=['POST'])
+def upload_csv_for_monitoring():
+    # Vérifiez si le fichier a été téléchargé correctement
+    if 'file' not in request.files:
+        return redirect(request.url)
+    file = request.files['file']
+    if file.filename == '':
+        return redirect(request.url)
+    
+    # Vérifiez que le fichier est un CSV
+    if file and file.filename.endswith('.csv'):
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+        monitor_directory()
+        
+        # Redirigez vers une nouvelle page ou retournez un résultat
+        return redirect(url_for('monitoring'))
+    else:
+        return 'Invalid file type, please upload a CSV.'
 
 if __name__ == '__main__':
     app.run(debug=True)

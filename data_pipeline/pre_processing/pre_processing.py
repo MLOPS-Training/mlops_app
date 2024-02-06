@@ -18,7 +18,8 @@ import plotly.express as px
 import pyarrow.parquet as pq
 import pyarrow as pa
 
-from mlops_app.lemmatizer import Lemmatizer
+from lemmatizer import Lemmatizer
+
 
 warnings.filterwarnings('ignore')
 
@@ -55,7 +56,7 @@ def clear_text(data):
     return cleaned_text
 
 
-def save_figure(figure, filename, output_folder='monitoring_elements'):
+def save_figure(figure, filename, output_folder='../app/static'):
     # Create the output folder if it doesn't exist
     os.makedirs(output_folder, exist_ok=True)
 
@@ -105,9 +106,9 @@ def pre_processed_csv(file_path: Path):
     fig = px.pie(mbti, names='type', title='Personality type', hole=0.3)
 
     # Save the Plotly figure as HTML (optional)
-    output_folder = 'monitoring_elements'
+    output_folder = '../app/static'
     os.makedirs(output_folder, exist_ok=True)  # Create the folder if it doesn't exist
-    fig.write_html('monitoring_elements/personality_pie_chart.html')
+    fig.write_html('../app/static/personality_pie_chart.html')
 
     # Create a Matplotlib subplot
     fig_subplots = make_subplots(rows=1, cols=1)
@@ -142,7 +143,7 @@ def pre_processed_csv(file_path: Path):
         plt.imshow(wc)
 
         # Save the word cloud image directly
-        plt.savefig('monitoring_elements/word_cloud.png', bbox_inches='tight')
+        plt.savefig('../app/static/word_cloud.png', bbox_inches='tight')
         plt.close()  # Close the figure to free up resources
     else:
         print("Not enough data to generate a word cloud.")

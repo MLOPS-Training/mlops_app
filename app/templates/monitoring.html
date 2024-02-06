@@ -13,5 +13,11 @@
         <input type="file" name="file" accept=".csv">
         <input type="submit" value="Upload and Process">
     </form>
+    <img src="{{ url_for('static', filename='word_cloud.png') }}" alt="Description" width="40%" height="410">
+    <iframe src="{{ url_for('static', filename='personality_pie_chart.html') }}" width="40%" height="400">
+        Your browser does not support iframes.
+    </iframe>
+
 </body>
+
 </html>
