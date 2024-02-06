@@ -1,22 +1,29 @@
 from flask import Flask, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
 from pathlib import Path
-import os
+import os, sys
 import joblib
 
-from lemmatizer import Lemmatizer
-from monitoring import monitor_directory
+
+from data_pipeline.pre_processing.lemmatizer import Lemmatizer
+import warnings
+
+from monitoring.monitoring import monitor_directory
+
+warnings.filterwarnings('ignore')
+
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = '../data_pipeline/data/raw'
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
+print(f"{sys.path} ICIIIIIII")
 
 # Load the trained model and necessary preprocessing objects
-model_log = joblib.load('logistic_regression_model.joblib')
-vectorizer = joblib.load('tfidf_vectorizer.joblib')
-target_encoder = joblib.load('label_encoder.joblib')
+model_log = joblib.load('./joblibs/logistic_regression_model.joblib')
+vectorizer = joblib.load('./joblibs/tfidf_vectorizer.joblib')
+target_encoder = joblib.load('./joblibs/label_encoder.joblib')
 
 
 @app.route('/')
@@ -59,4 +66,4 @@ def upload_csv_for_monitoring():
         return 'Invalid file type, please upload a CSV.'
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
