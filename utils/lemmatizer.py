@@ -6,4 +6,8 @@ class Lemmatizer(object):
         self.lemmatizer = WordNetLemmatizer()
 
     def __call__(self, sentence):
-        return [self.lemmatizer.lemmatize(word) for word in sentence.split() if len(word) > 2]
+        return [
+            self.lemmatizer.lemmatize(word)
+            for word in sentence.split()
+            if len(word) > 2
+        ]
