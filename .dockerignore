@@ -1,0 +1,9 @@
+.idea/
+.vscode/
+.env/
+
+__pycache__/
+
+src/temp/
+src/data/
+src/weights/results/
