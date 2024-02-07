@@ -14,7 +14,7 @@ To run the application in development mode, you can run the following commands:
 
 ```bash
 cd mlops_app
-python app.py
+python src/app.py
 ```
 
 ## Installation
