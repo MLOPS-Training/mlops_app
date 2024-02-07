@@ -4,7 +4,7 @@
 
 This is a simple MLOps application that demonstrates the use of CI/CD pipelines to deploy a machine learning model. The application is built using the following technologies:
 
-- Python
+- Python3.8
 - Flask
 - Docker
 
