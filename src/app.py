@@ -53,11 +53,18 @@ def home():
 
 @app.route("/predict", methods=["POST"])
 def predict():
+    # Votre logique de prédiction existante
+    prediction = target_encoder.inverse_transform(
+        model_log.predict(vectorizer.transform([request.form["post"]]).toarray())
+    )[0]
+    
+    # Construire le chemin de l'image basé sur la prédiction
+    image_filename = f"{prediction}.png"
+    
     return render_template(
         "result.html",
-        prediction=target_encoder.inverse_transform(
-            model_log.predict(vectorizer.transform([request.form["post"]]).toarray())
-        )[0],
+        prediction=prediction,
+        image_filename=image_filename
     )
 
 

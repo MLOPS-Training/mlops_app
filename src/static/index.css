@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow&display=swap');
+
+html {
+    height: 100%;
+    background-color: #FFF7F1;
+}
+
+body {
+    font-family: 'Barlow', sans-serif;
+    display: flex;
+    justify-content: center;
+    min-height: 95%;
+    flex-wrap: wrap;
+    
+}
+ h1{
+    color: #E78895;
+ }
+.input-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    margin: 20px;
+    width: 80%;
+    height: 400px;
+    background-color: #BED1CF;
+}
+
+textarea{
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    border: none;
+    border-radius: 5px;
+    height: 150px;
+    width:500px;
+    margin: 10px;
+}
+
+input {
+    text-decoration: none;
+    border: 1px solid #E78895;
+    height: 50px;
+    width: 90px;
+    border-radius: 100000px;
+    background-color: #FFE4C9;
+    transition: 0.4s;
+    color: #E78895;
+}
+
+img {
+    width: 25%;
+    height: 40%;
+}
+input:hover {
+    background-color: #E78895;
+    color: #FFE4C9;
+    border: 1ps solid #FFE4C9;
+}

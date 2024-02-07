@@ -8,5 +8,6 @@
   <body>
     <h1>Predicted Personality Type:</h1>
     <p>{{ prediction }}</p>
+    <img src="{{ url_for('static', filename=image_filename) }}" alt="Personality Type Image">
   </body>
 </html>
