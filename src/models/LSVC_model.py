@@ -1,14 +1,13 @@
-from utils.lemmatizer import Lemmatizer
+import os
+import joblib
+import pandas as pd
+from pathlib import Path
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import LinearSVC
-from pathlib import Path
-
-import pandas as pd
-import joblib
-import os
+from sklearn.preprocessing import LabelEncoder
+from lemmatizer import Lemmatizer
 
 
 def train_and_test_models(data_filename):
@@ -60,27 +59,58 @@ def train_and_test_models(data_filename):
     last_train_time_file.write_text(str(curated_data_modified_time))
 
 
-def save_model_and_results(model, X_test, y_test, model_name):
+def save_model_and_results(
+    model, X_test, y_test, model_name, vectorizer, target_encoder
+):
+    print(f"Saving {model_name} model and results...")
     # Save the model as a pickle file
-    model_output_path_pickle = (
+    model_output_path_joblib = (
         Path(__file__).resolve().parent
         / "models"
         / "models_train"
         / f"{model_name}_model"
-        / "train.pkl"
+        / "train.joblib"
     )
-    model_output_path_pickle.parent.mkdir(parents=True, exist_ok=True)
+    model_output_path_joblib.parent.mkdir(parents=True, exist_ok=True)
+    vectorizer_output_path_joblib = (
+        Path(__file__).resolve().parent
+        / "models"
+        / "models_train"
+        / f"{model_name}_model"
+        / "tfidf_vectorizer.joblib"
+    )
+    vectorizer_output_path_joblib.parent.mkdir(parents=True, exist_ok=True)
+    target_encoder_output_path_joblib = (
+        Path(__file__).resolve().parent
+        / "models"
+        / "models_train"
+        / f"{model_name}_model"
+        / "label_encoder.joblib"
+    )
+    target_encoder_output_path_joblib.parent.mkdir(parents=True, exist_ok=True)
 
     try:
         if isinstance(model, LinearSVC):
             # Save LinearSVC model using joblib
-            joblib.dump(model, model_output_path_pickle)
+            joblib.dump(model, model_output_path_joblib)
+            print(
+                f"{model_name} Model saved successfully as pickle at: {model_output_path_joblib}"
+            )
+            # Save the vectorizer and target_encoder
+            joblib.dump(vectorizer, vectorizer_output_path_joblib)
+            print(
+                f"Vectorizer saved successfully as joblib at: {vectorizer_output_path_joblib}"
+            )
+            joblib.dump(target_encoder, target_encoder_output_path_joblib)
+            print(
+                f"Target Encoder saved successfully as joblib at: {target_encoder_output_path_joblib}"
+            )
+
         else:
             # Handle other models if needed
             pass
         print(
-            f"{model_name} Model saved successfully as pickle at: {
-              model_output_path_pickle}"
+            f"{model_name} Model saved successfully as pickle at: {model_output_path_joblib}"
         )
     except Exception as e:
         print(f"Error saving {model_name} model as pickle: {e}")
@@ -105,8 +135,7 @@ def save_model_and_results(model, X_test, y_test, model_name):
     results_df.to_parquet(results_parquet_path, index=False)
 
     print(
-        f"Test predictions for {
-          model_name} saved successfully at: {results_parquet_path}"
+        f"Test predictions for {model_name} saved successfully at: {results_parquet_path}"
     )
 
 
@@ -129,8 +158,6 @@ def train_and_test_linear_svc(train_data, test_data):
     model_linear_svc.fit(X_train, y_train)
 
     # Save LinearSVC model and results
-    save_model_and_results(model_linear_svc, X_test, y_test, "linear_svc")
-
-
-if __name__ == "__main__":
-    train_and_test_models("curated_data.parquet")
+    save_model_and_results(
+        model_linear_svc, X_test, y_test, "linear_svc", vectorizer, target_encoder
+    )

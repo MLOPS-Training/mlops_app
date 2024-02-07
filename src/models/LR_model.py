@@ -1,35 +1,60 @@
-from utils.lemmatizer import Lemmatizer
+import os
+import joblib
+import pandas as pd
+from pathlib import Path
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder
-from pathlib import Path
-
-import pandas as pd
-import joblib
-import os
+from lemmatizer import Lemmatizer
 
 
-def save_model_and_results(model, X_test, y_test, model_name):
-    # Save the model as a pickle file
-    model_output_path_pickle = (
+def save_model_and_results(
+    model, X_test, y_test, model_name, vectorizer, target_encoder
+):
+    # Save the model as a joblib file
+    model_output_path_joblib = (
         Path(__file__).resolve().parent
         / "models"
         / "models_train"
         / f"{model_name}_model"
-        / "train.pkl"
+        / "train.joblib"
     )
-    model_output_path_pickle.parent.mkdir(parents=True, exist_ok=True)
+    model_output_path_joblib.parent.mkdir(parents=True, exist_ok=True)
+    vectorizer_output_path_joblib = (
+        Path(__file__).resolve().parent
+        / "models"
+        / "models_train"
+        / f"{model_name}_model"
+        / "tfidf_vectorizer.joblib"
+    )
+    vectorizer_output_path_joblib.parent.mkdir(parents=True, exist_ok=True)
+    target_encoder_output_path_joblib = (
+        Path(__file__).resolve().parent
+        / "models"
+        / "models_train"
+        / f"{model_name}_model"
+        / "label_encoder.joblib"
+    )
+    target_encoder_output_path_joblib.parent.mkdir(parents=True, exist_ok=True)
 
     try:
-        joblib.dump(model, model_output_path_pickle)
+        joblib.dump(model, model_output_path_joblib)
         print(
-            f"{model_name} Model saved successfully as pickle at: {
-              model_output_path_pickle}"
+            f"{model_name} Model saved successfully as joblib at: {model_output_path_joblib}"
         )
+        joblib.dump(vectorizer, vectorizer_output_path_joblib)
+        print(
+            f"TfidfVectorizer saved successfully as joblib at: {vectorizer_output_path_joblib}"
+        )
+        joblib.dump(target_encoder, target_encoder_output_path_joblib)
+        print(
+            f"LabelEncoder saved successfully as joblib at: {target_encoder_output_path_joblib}"
+        )
+
     except Exception as e:
-        print(f"Error saving {model_name} model as pickle: {e}")
+        print(f"Error saving {model_name} model as joblib: {e}")
 
     # Make predictions on the test set
     test_predictions = model.predict(X_test)
@@ -51,8 +76,7 @@ def save_model_and_results(model, X_test, y_test, model_name):
     results_df.to_parquet(results_parquet_path, index=False)
 
     print(
-        f"Test predictions for {
-          model_name} saved successfully at: {results_parquet_path}"
+        f"Test predictions for {model_name} saved successfully at: {results_parquet_path}"
     )
 
 
@@ -74,11 +98,14 @@ def train_and_test_logistic_regression(train_data, test_data):
     model_log.fit(X_train, y_train)
 
     # Save Logistic Regression model
-    save_model_and_results(model_log, X_test, y_test, "logistic_regression")
+    save_model_and_results(
+        model_log, X_test, y_test, "logistic_regression", vectorizer, target_encoder
+    )
 
 
 def train_and_test_models(data_filename):
     # Load the curated data
+    print("Loading curated data...")
     curated_data_path = (
         Path(__file__).resolve().parent.parent / "data" / "curated" / data_filename
     )
@@ -108,8 +135,3 @@ def train_and_test_models(data_filename):
 
     # Train and test Logistic Regression
     train_and_test_logistic_regression(train_data, test_data)
-
-
-if __name__ == "__main__":
-    # Replace 'curated_data.parquet' with your actual curated data file name
-    train_and_test_models("curated_data.parquet")

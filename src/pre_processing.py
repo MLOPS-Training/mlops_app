@@ -1,4 +1,4 @@
-from utils.lemmatizer import Lemmatizer
+from lemmatizer import Lemmatizer
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from plotly.subplots import make_subplots
@@ -11,19 +11,14 @@ import pyarrow.parquet as pq
 import plotly.express as px
 import pyarrow as pa
 import pandas as pd
-import hashlib
-import os
 import re
 
 
-# Pathsapp
-RAW_DATA_DIR = Path("./src/data_pipeline/data/raw")
-PRE_CURATED_DATA_DIR = Path("./src/data_pipeline/data/pre_curated")
-CURATED_DATA_DIR = Path("./src/data_pipeline/data/curated")
-os.makedirs(PRE_CURATED_DATA_DIR, exist_ok=True)
-os.makedirs(CURATED_DATA_DIR, exist_ok=True)
-
-PROCESSED_FILE_HASHES_FILE = Path("./src/data_pipeline/processed_file_hashes.txt")
+# paths
+PRE_CURATED_DATA_DIR = Path("./src/data/pre_curated")
+CURATED_DATA_DIR = Path("./src/data/curated")
+OUTPUT_CHART_PATH = Path("./src/static/personality_pie_chart.html")
+OUTPUT_WORD_CLOUD_IMAGE_PATH = Path("./src/static/word_cloud.png")
 
 
 def clear_text(data):
@@ -53,42 +48,8 @@ def clear_text(data):
     return cleaned_text
 
 
-def save_figure(figure, filename, output_folder="./src/static"):
-    # Create the output folder if it doesn't exist
-    os.makedirs(output_folder, exist_ok=True)
-
-    plt.figure(figure.number)  # Use figure directly without subscripting
-    plt.savefig(os.path.join(output_folder, filename))
-    plt.close()
-
-
-def load_processed_file_hashes():
-    """Load processed file hashes from the file."""
-    if PROCESSED_FILE_HASHES_FILE.exists():
-        with open(PROCESSED_FILE_HASHES_FILE, "r") as file:
-            return set(file.read().splitlines())
-    return set()
-
-
-# Add a set to keep track of processed file names
-processed_files = load_processed_file_hashes()
-
-
-def save_processed_file_hash(file_hash):
-    """Save processed file hash to the file."""
-    with open(PROCESSED_FILE_HASHES_FILE, "a") as file:
-        file.write(file_hash + "\n")
-
-
 def pre_processed_csv(file_path: Path):
-    # Output results
     file_name = file_path.stem  # Use the name without extension
-
-    # Check if the file has already been processed
-    file_hash = hashlib.md5(file_name.encode("utf-8")).hexdigest()
-    if file_hash in processed_files:
-        print(f"File {file_name} has already been processed.")
-        return
 
     try:
         mbti = pd.read_csv(file_path, encoding="ISO-8859-1")
@@ -101,12 +62,7 @@ def pre_processed_csv(file_path: Path):
 
     # Plot personality type pie chart using Plotly Express
     fig = px.pie(mbti, names="type", title="Personality type", hole=0.3)
-
-    # Save the Plotly figure as HTML (optional)
-    output_folder = "./src/static"
-    # Create the folder if it doesn't exist
-    os.makedirs(output_folder, exist_ok=True)
-    fig.write_html("./src/static/personality_pie_chart.html")
+    fig.write_html(OUTPUT_CHART_PATH)
 
     # Create a Matplotlib subplot
     fig_subplots = make_subplots(rows=1, cols=1)
@@ -116,9 +72,6 @@ def pre_processed_csv(file_path: Path):
         if trace.type == "pie":
             # Create a subplot for the pie chart
             fig_subplots.add_trace(trace)
-
-    # Display the Plotly figure if needed
-    # fig_subplots.show()
 
     # TfidfVectorizer with Lemmatizer
     vectorizer = TfidfVectorizer(
@@ -140,13 +93,12 @@ def pre_processed_csv(file_path: Path):
         plt.imshow(wc)
 
         # Save the word cloud image directly
-        plt.savefig("./src/static/word_cloud.png", bbox_inches="tight")
+        plt.savefig(OUTPUT_WORD_CLOUD_IMAGE_PATH, bbox_inches="tight")
         plt.close()  # Close the figure to free up resources
     else:
         print("Not enough data to generate a word cloud.")
 
     now = pd.to_datetime("now").strftime("%Y%m%d%H%M%S")
-
     # Save the preprocessed data to the specified file_path in pre_curated folder
     processed_file_path = (
         PRE_CURATED_DATA_DIR / f"{now}-{file_name}-pre_curated_data.csv"
@@ -155,15 +107,13 @@ def pre_processed_csv(file_path: Path):
     print(f"Processed {file_name} : OK")
 
     # Append the preprocessed data to the curated parquet file
-    curated_parquet_path = CURATED_DATA_DIR / "curated_data.parquet"
+    curated_parquet_path = CURATED_DATA_DIR.joinpath("curated_data.parquet")
 
     if not curated_parquet_path.exists():
         # If the parquet file doesn't exist, create it
         table = pa.Table.from_pandas(mbti)
         with pq.ParquetWriter(str(curated_parquet_path), table.schema) as writer:
             writer.write_table(table)
-        # show the 1025 element of the parquet file (just for testing that the parquet file is created correctly)
-        print(pq.read_table(str(curated_parquet_path)).to_pandas().iloc[1025])
         print(f"Added {file_name} to new parquet file named : curated_data.parquet")
     else:
         # If the parquet file exists, read existing data and append the new data
@@ -175,15 +125,3 @@ def pre_processed_csv(file_path: Path):
         with pq.ParquetWriter(str(curated_parquet_path), table.schema) as writer:
             writer.write_table(table)
         print(f"Appended {file_name} to curated_data.parquet")
-
-    # Add the processed file name to the set and save to file
-    processed_files.add(file_hash)
-    save_processed_file_hash(file_hash)
-
-
-if __name__ == "__main__":
-    # Get a list of all CSV files in the raw data folder
-    mbti_files = [file for file in RAW_DATA_DIR.glob("*.csv")]
-
-    for mbti_file_path in mbti_files:
-        pre_processed_csv(mbti_file_path)
