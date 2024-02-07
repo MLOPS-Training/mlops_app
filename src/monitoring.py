@@ -1,10 +1,5 @@
-from src.models.LSVC_model import (
-    train_and_test_models as train_and_test_LSVC,
-)
-from src.models.LR_model import (
-    train_and_test_models as train_and_test_LR,
-)
 from pre_processing import pre_processed_csv
+from models import retrain_models
 
 from pathlib import Path
 
@@ -44,13 +39,9 @@ def monitor_directory():
                 save_processed_file_hash(file.name)
                 new_file = True
 
+        # After processing all new files retrain models
         if new_file:
-            # After processing all new files, trigger the training_testing and testing
-            print("Training and testing Logistic Regression model")
-            train_and_test_LR("curated_data.parquet")
-
-            print("Training and testing LSVC model")
-            train_and_test_LSVC("curated_data.parquet")
+            retrain_models()
         else:
             print("No new files found")
 

@@ -24,6 +24,10 @@ os.makedirs(CURATED_DATA_DIR, exist_ok=True)
 PROCESSED_FILE_HASHES_FILE = Path("./src/temp/processed_file_hashes.txt")
 os.makedirs("./src/temp", exist_ok=True)
 
+# create the weights directory
+MODEL_RESULT_OUTPUT_PATH = Path("./src/weights/results")
+os.makedirs(MODEL_RESULT_OUTPUT_PATH, exist_ok=True)
+
 # download the necessary nltk resources
 nltk.download("wordnet")
 
@@ -34,9 +38,12 @@ warnings.filterwarnings("ignore")
 app = Flask(__name__)
 
 # load the trained model and necessary preprocessing objects
-model_log = joblib.load("./src/weights/train.joblib")
-target_encoder = joblib.load("./src/weights/label_encoder.joblib")
 vectorizer = joblib.load("./src/weights/vectorizer.joblib")
+target_encoder = joblib.load("./src/weights/target_encoder.joblib")
+model_log = joblib.load("./src/weights/logistic_regression_model.joblib")
+
+# unused for now
+# model_lsvc = joblib.load("./src/weights/linear_svc_model.joblib")
 
 
 @app.route("/")

@@ -16,7 +16,7 @@ import re
 
 # paths
 PRE_CURATED_DATA_DIR = Path("./src/data/pre_curated")
-CURATED_DATA_DIR = Path("./src/data/curated")
+CURATED_DATA_PATH = Path("./src/data/curated/curated_data.parquet")
 OUTPUT_CHART_PATH = Path("./src/static/personality_pie_chart.html")
 OUTPUT_WORD_CLOUD_IMAGE_PATH = Path("./src/static/word_cloud.png")
 
@@ -106,22 +106,19 @@ def pre_processed_csv(file_path: Path):
     pd.DataFrame(mbti).to_csv(processed_file_path, index=False)
     print(f"Processed {file_name} : OK")
 
-    # Append the preprocessed data to the curated parquet file
-    curated_parquet_path = CURATED_DATA_DIR.joinpath("curated_data.parquet")
-
-    if not curated_parquet_path.exists():
+    if not CURATED_DATA_PATH.exists():
         # If the parquet file doesn't exist, create it
         table = pa.Table.from_pandas(mbti)
-        with pq.ParquetWriter(str(curated_parquet_path), table.schema) as writer:
+        with pq.ParquetWriter(str(CURATED_DATA_PATH), table.schema) as writer:
             writer.write_table(table)
         print(f"Added {file_name} to new parquet file named : curated_data.parquet")
     else:
         # If the parquet file exists, read existing data and append the new data
-        existing_data = pq.read_table(str(curated_parquet_path)).to_pandas()
+        existing_data = pq.read_table(str(CURATED_DATA_PATH)).to_pandas()
         new_data = pd.concat([existing_data, mbti], ignore_index=True)
 
         # Write the combined data back to the Parquet file
         table = pa.Table.from_pandas(new_data)
-        with pq.ParquetWriter(str(curated_parquet_path), table.schema) as writer:
+        with pq.ParquetWriter(str(CURATED_DATA_PATH), table.schema) as writer:
             writer.write_table(table)
         print(f"Appended {file_name} to curated_data.parquet")
