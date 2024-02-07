@@ -4,11 +4,13 @@ from lemmatizer import Lemmatizer as Lemmatizer
 from flask import Flask, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
 from threading import Thread
+from waitress import serve
 from pathlib import Path
 
 import warnings
 import joblib
 import nltk
+import sys
 import os
 
 # create the data directories
@@ -96,6 +98,10 @@ if __name__ == "__main__":
 
     try:
         monitoring_thread.start()
-        app.run(debug=False)
+        if "--prod" in sys.argv:
+            serve(app, host="0.0.0.0", port=5000)
+        else:
+            app.run(debug=False)
+
     except KeyboardInterrupt:
         monitoring_thread.join()
