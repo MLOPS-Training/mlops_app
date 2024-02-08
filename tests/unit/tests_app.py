@@ -40,7 +40,7 @@ class TestFlaskApp(unittest.TestCase):
     def test_upload_csv_for_monitoring(self):
         response = self.app.post(
             "/monitoring",
-            data={"file": (open("tests/unit/test_data.csv", "rb"), "test_data.csv")},
+            data={"file": (open("tests/test_data.csv", "rb"), "test_data.csv")},
             follow_redirects=True,
         )
         self.assertEqual(response.status_code, 200, bad_response_200)
@@ -53,7 +53,7 @@ class TestFlaskApp(unittest.TestCase):
     def test_upload_csv_for_monitoring_invalid_file(self):
         response = self.app.post(
             "/monitoring",
-            data={"file": (open("tests/unit/test_data.txt", "rb"), "test_data.txt")},
+            data={"file": (open("tests/test_data.txt", "rb"), "test_data.txt")},
             follow_redirects=True,
         )
         self.assertEqual(
