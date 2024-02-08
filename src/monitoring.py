@@ -5,6 +5,7 @@ from pathlib import Path
 
 import hashlib
 import time
+import os
 
 
 # paths
@@ -34,6 +35,7 @@ def monitor_directory():
         new_file = False
         for file in RAW_DATA_DIR.glob("*.csv"):
             if not check_if_file_processed(file.name):
+                os.environ["MODELS_UP_TO_DATE"] = "False"
                 print(f"Processing new file: {file.name}")
                 pre_processed_csv(RAW_DATA_DIR.joinpath(file.name))
                 save_processed_file_hash(file.name)
@@ -42,6 +44,7 @@ def monitor_directory():
         # After processing all new files retrain models
         if new_file:
             retrain_models()
+            os.environ["MODELS_UP_TO_DATE"] = "True"
         else:
             print("No new files found")
 
