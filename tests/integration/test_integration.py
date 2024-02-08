@@ -2,6 +2,7 @@ from selenium.webdriver.common.by import By
 from selenium import webdriver
 
 import unittest
+import time
 import os
 
 
@@ -17,6 +18,7 @@ class TestIntegration(unittest.TestCase):
     def teardown_method(self, method):
         self.driver.quit()
 
+    # tests must be adapt after the front changes
     def test_predict(self):
         self.driver.get("http://127.0.0.1:5000/")
         self.driver.find_element(By.ID, "post").click()
@@ -28,6 +30,21 @@ class TestIntegration(unittest.TestCase):
         self.driver.find_element(By.ID, "file").send_keys(
             os.path.abspath("tests/test_data.csv")
         )
+        self.driver.find_element(By.ID, "submit").click()
+
+    def test_end_to_end(self):
+        self.driver.get("http://127.0.0.1:5000/monitoring")
+        self.driver.find_element(By.ID, "file").send_keys(
+            os.path.abspath("tests/test_data.csv")
+        )
+        self.driver.find_element(By.ID, "submit").click()
+
+        # wait for the model to be trained
+        time.sleep(120)
+
+        self.driver.get("http://127.0.0.1:5000/")
+        self.driver.find_element(By.ID, "post").click()
+        self.driver.find_element(By.ID, "post").send_keys("test")
         self.driver.find_element(By.ID, "submit").click()
 
 
