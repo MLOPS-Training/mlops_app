@@ -58,7 +58,7 @@ class TestFlaskApp(unittest.TestCase):
         )
         self.assertEqual(
             response.data,
-            b"Invalid file header, please upload a CSV file with the following header: type,post",
+            b"Invalid file header, please upload a CSV file with the following header: type,posts",
             bad_response_400,
         )
 
