@@ -1,8 +1,10 @@
 name: Run Tests
 
-push:
+on:
+  push:
     branches:
       - staging
+      - main
 
 jobs:
   test:
