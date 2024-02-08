@@ -17,6 +17,20 @@ cd mlops_app
 python src/app.py
 ```
 
+## Testing
+
+To run the tests, you can run the following commands:
+
+```bash
+cd mlops_app
+
+# Run the unit tests
+python -m unittest discover tests/unit/
+
+# Run the integration tests
+python -m unittest discover tests/integration/
+```
+
 ## Installation
 
 To install the application, you need to have the following installed:
@@ -39,6 +53,10 @@ To use the application, you can visit the following URL:
 ```bash
 http://localhost:5000
 ```
+
+## Production
+
+The application docker image is hosted on [Docker Hub](https://hub.docker.com/repository/docker/cesarombredane/mlops_app/general).
 
 ## Contributors
 
