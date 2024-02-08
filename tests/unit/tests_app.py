@@ -45,9 +45,25 @@ class TestFlaskApp(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 200, bad_response_200)
 
+    def test_upload_csv_for_monitoring_wrong_format(self):
+        response = self.app.post(
+            "/monitoring",
+            data={
+                "file": (
+                    open("tests/test_data_wrong_format.csv", "rb"),
+                    "test_data_wrong_format.csv",
+                )
+            },
+            follow_redirects=True,
+        )
+        self.assertEqual(
+            response.data,
+            b"Invalid file header, please upload a CSV file with the following header: type,post",
+            bad_response_400,
+        )
+
     def test_upload_csv_for_monitoring_missing_file(self):
         response = self.app.post("/monitoring", follow_redirects=True)
-        print(response)
         self.assertEqual(response.status_code, 200, bad_response_200)
 
     def test_upload_csv_for_monitoring_invalid_file(self):
