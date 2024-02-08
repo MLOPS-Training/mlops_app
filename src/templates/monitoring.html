@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" type="text/css" href= "{{ url_for('static', filename='monitoring.css') }}" />
+    <title>Monitoring - Upload CSV File</title>
+  </head>
+  <body>
+    <div class="input-monitor">
+      <h2>Upload CSV for Monitoring</h2>
+      <form method="post" action="/monitoring" enctype="multipart/form-data">
+        <input id="file" type="file" name="file" accept=".csv" />
+        <input id="submit" type="submit" value="Upload and Process" />
+      </form>
+    </div>
+    <div class="display-card">
+      <h2>Some information about your dataset:</h2>
+      <div class="row">
+        <img src="{{ url_for('static', filename='word_cloud.png') }}" alt="Description" width="40%" height="410" />
+        <iframe src="{{ url_for('static', filename='personality_pie_chart.html') }}" width="40%" height="400"> Your browser does not support iframes.</iframe>
+      </div>
+    </div>
+  </body>
+</html>
