@@ -3,16 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MBTI Personality Prediction</title>
+    <link rel="stylesheet" type="text/css" href= "{{ url_for('static', filename='index.css') }}" />
   </head>
   <body>
-    <h1>MBTI Personality Prediction</h1>
-    <form action="/predict" method="post">
-      <label for="post">Enter your post:</label>
-      <br />
-      <textarea id="post" name="post" rows="4" cols="50" required></textarea>
-      <br />
-      <input id="submit" type="submit" value="Predict" />
-    </form>
+    <div class="input-card">
+      <h1>MBTI Personality Prediction</h1>
+      <form action="/predict" method="post">
+        <label for="post">Enter your post:</label>
+        <br />
+        <textarea id="post" name="post" rows="4" cols="50" required>Write here whatever it comes to your mind..</textarea>
+        <br />
+        <input id="submit" type="submit" value="Predict" />
+      </form>
+    </div>
+    <img
+      src="{{ url_for('static', filename='illustration.png') }}"
+      alt="Description"
+     />
   </body>
 </html>

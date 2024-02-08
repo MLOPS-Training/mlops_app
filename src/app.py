@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 from threading import Thread
 from waitress import serve
 from pathlib import Path
+import numpy as np
 
 import warnings
 import joblib
@@ -55,11 +56,28 @@ def home():
 
 @app.route("/predict", methods=["POST"])
 def predict():
+    post = request.form["post"]
+    # Prédire les probabilités pour chaque classe
+    probabilities = model_log.predict_proba(vectorizer.transform([post]).toarray())[0]
+    
+    # Obtenir les indices des trois prédictions les plus élevées
+    top_predictions_indices = np.argsort(-probabilities)[:3]
+    top_predictions = target_encoder.inverse_transform(top_predictions_indices)
+    top_probabilities = probabilities[top_predictions_indices]
+    
+    # Préparer le chemin de l'image pour la prédiction la plus élevée
+    top_prediction = top_predictions[0]
+    image_filename = f"mbti_images/{top_prediction}.png"
+    
+    # Préparer les données pour le template
+    predictions_data = zip(top_predictions, top_probabilities)
+    
     return render_template(
         "result.html",
-        prediction=target_encoder.inverse_transform(
-            model_log.predict(vectorizer.transform([request.form["post"]]).toarray())
-        )[0],
+        post=post,
+        predictions_data=predictions_data,
+        image_filename=image_filename,
+        top_prediction=top_prediction
     )
 
 
