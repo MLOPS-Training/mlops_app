@@ -90,7 +90,7 @@ def monitoring():
         "monitoring.html",
         models_message="Models are up to date !"
         if os.environ["MODELS_UP_TO_DATE"] == "True"
-        else "Models are not up to date. Please wait for the models to be retrained.",
+        else "Models are not up to date",
     )
 
 
@@ -105,17 +105,22 @@ def upload_csv_for_monitoring():
         return redirect(request.url)
 
     # check if the file is a CSV
-    if file and file.filename.endswith(".csv"):
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(RAW_DATA_PATH, filename)
-        file.save(file_path)
-        os.environ["MODELS_UP_TO_DATE"] = "False"
-        print(f"File {filename} uploaded successfully")
-
-        # redirect to the monitoring page
-        return redirect(url_for("monitoring"))
-    else:
+    if not file.filename.endswith(".csv"):
         return "Invalid file type, please upload a CSV."
+
+    # check if the header of the csv file is valid
+    header = file.readline().decode("utf-8").strip()
+    if header != "type,post":
+        return "Invalid file header, please upload a CSV file with the following header: type,post"
+
+    filename = secure_filename(file.filename)
+    file_path = os.path.join(RAW_DATA_PATH, filename)
+    file.save(file_path)
+    os.environ["MODELS_UP_TO_DATE"] = "False"
+    print(f"File {filename} uploaded successfully")
+
+    # redirect to the monitoring page
+    return redirect(url_for("monitoring"))
 
 
 if __name__ == "__main__":
