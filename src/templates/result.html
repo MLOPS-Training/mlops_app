@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href= "{{ url_for('static', filename='result.css') }}" />
+    <title>MBTI Personality Prediction Result</title>
+  </head>
+  <body>
+    <div class="result-card">
+      <div class="column">
+        <div>
+          <h1>Your Post:</h1>
+          <p>{{ post }}</p>
+        </div>
+        <div>
+          <h2>Top 3 Predicted Personality Types:</h2>
+          <ul>
+            {% for prediction, probability in predictions_data %}
+                <li>{{ prediction }}: {{ probability*100|round(3) }}%</li>
+            {% endfor %}
+         </ul>
+        </div>
+        
+      </div>
+      
+      <div class="column-image">
+        <h3>Most Likely Personality Type:</h3>
+        <img src="{{ url_for('static', filename=image_filename) }}" alt="Most Likely Personality Type"> 
+        <p>{{ top_prediction }}</p>
+      </div>
+    </div>
+  </body>
+</html>
