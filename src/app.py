@@ -111,7 +111,7 @@ def upload_csv_for_monitoring():
     # check if the header of the csv file is valid
     header = file.readline().decode("utf-8").strip()
     if header != "type,posts":
-        return "Invalid file header, please upload a CSV file with the following header: type,post"
+        return "Invalid file header, please upload a CSV file with the following header: type,posts"
 
     filename = secure_filename(file.filename)
     file_path = os.path.join(RAW_DATA_PATH, filename)
