@@ -37,6 +37,9 @@ nltk.download("wordnet")
 # ignore warnings
 warnings.filterwarnings("ignore")
 
+# create a environment variable to specify if the models are up to date
+os.environ["MODELS_UP_TO_DATE"] = "True"
+
 # create the Flask app
 app = Flask(__name__)
 
@@ -59,31 +62,36 @@ def predict():
     post = request.form["post"]
     # Prédire les probabilités pour chaque classe
     probabilities = model_log.predict_proba(vectorizer.transform([post]).toarray())[0]
-    
+
     # Obtenir les indices des trois prédictions les plus élevées
     top_predictions_indices = np.argsort(-probabilities)[:3]
     top_predictions = target_encoder.inverse_transform(top_predictions_indices)
     top_probabilities = probabilities[top_predictions_indices]
-    
+
     # Préparer le chemin de l'image pour la prédiction la plus élevée
     top_prediction = top_predictions[0]
     image_filename = f"mbti_images/{top_prediction}.png"
-    
+
     # Préparer les données pour le template
     predictions_data = zip(top_predictions, top_probabilities)
-    
+
     return render_template(
         "result.html",
         post=post,
         predictions_data=predictions_data,
         image_filename=image_filename,
-        top_prediction=top_prediction
+        top_prediction=top_prediction,
     )
 
 
 @app.route("/monitoring", methods=["GET"])
 def monitoring():
-    return render_template("monitoring.html")
+    return render_template(
+        "monitoring.html",
+        models_message="Models are up to date !"
+        if os.environ["MODELS_UP_TO_DATE"] == "True"
+        else "Models are not up to date",
+    )
 
 
 @app.route("/monitoring", methods=["POST"])
@@ -97,16 +105,22 @@ def upload_csv_for_monitoring():
         return redirect(request.url)
 
     # check if the file is a CSV
-    if file and file.filename.endswith(".csv"):
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(RAW_DATA_PATH, filename)
-        file.save(file_path)
-        print(f"File {filename} uploaded successfully")
-
-        # redirect to the monitoring page
-        return redirect(url_for("monitoring"))
-    else:
+    if not file.filename.endswith(".csv"):
         return "Invalid file type, please upload a CSV."
+
+    # check if the header of the csv file is valid
+    header = file.readline().decode("utf-8").strip()
+    if header != "type,post":
+        return "Invalid file header, please upload a CSV file with the following header: type,post"
+
+    filename = secure_filename(file.filename)
+    file_path = os.path.join(RAW_DATA_PATH, filename)
+    file.save(file_path)
+    os.environ["MODELS_UP_TO_DATE"] = "False"
+    print(f"File {filename} uploaded successfully")
+
+    # redirect to the monitoring page
+    return redirect(url_for("monitoring"))
 
 
 if __name__ == "__main__":
