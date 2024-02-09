@@ -47,9 +47,7 @@ app = Flask(__name__)
 vectorizer = joblib.load("./src/weights/vectorizer.joblib")
 target_encoder = joblib.load("./src/weights/target_encoder.joblib")
 model_log = joblib.load("./src/weights/logistic_regression_model.joblib")
-
-# unused for now
-# model_lsvc = joblib.load("./src/weights/linear_svc_model.joblib")
+model_lsvc = joblib.load("./src/weights/linear_svc_model.joblib")
 
 
 @app.route("/")
@@ -60,8 +58,16 @@ def home():
 @app.route("/predict", methods=["POST"])
 def predict():
     post = request.form["post"]
+    model = request.form["model"]
     # Prédire les probabilités pour chaque classe
-    probabilities = model_log.predict_proba(vectorizer.transform([post]).toarray())[0]
+    if model == "logistic_regression":
+        probabilities = model_log.predict_proba(vectorizer.transform([post]).toarray())[
+            0
+        ]
+    else:
+        probabilities = model_lsvc.decision_function(
+            vectorizer.transform([post]).toarray()
+        )[0]
 
     # Obtenir les indices des trois prédictions les plus élevées
     top_predictions_indices = np.argsort(-probabilities)[:3]
@@ -133,7 +139,7 @@ if __name__ == "__main__":
         if "--prod" in sys.argv:
             serve(app, host="0.0.0.0", port=5000)
         else:
-            app.run(debug=False)
+            app.run(debug=True)
 
     except KeyboardInterrupt:
         monitoring_thread.join()

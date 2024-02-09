@@ -11,11 +11,12 @@ body {
     justify-content: center;
     min-height: 95%;
     flex-wrap: wrap;
-    
 }
- h1{
+
+h1{
     color: #E78895;
- }
+}
+
 .input-card {
     display: flex;
     flex-direction: column;
@@ -40,7 +41,7 @@ textarea{
     margin: 10px;
 }
 
-input {
+.submit {
     text-decoration: none;
     border: 1px solid #E78895;
     height: 50px;
@@ -55,7 +56,8 @@ img {
     width: 25%;
     height: 40%;
 }
-input:hover {
+
+.submit:hover {
     background-color: #E78895;
     color: #FFE4C9;
     border: 1ps solid #FFE4C9;
