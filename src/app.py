@@ -119,6 +119,7 @@ def upload_csv_for_monitoring():
     if header != "type,posts":
         return "Invalid file header, please upload a CSV file with the following header: type,posts"
 
+    file.seek(0)
     filename = secure_filename(file.filename)
     file_path = os.path.join(RAW_DATA_PATH, filename)
     file.save(file_path)
@@ -139,7 +140,7 @@ if __name__ == "__main__":
         if "--prod" in sys.argv:
             serve(app, host="0.0.0.0", port=5000)
         else:
-            app.run(debug=True)
+            app.run(debug=False)
 
     except KeyboardInterrupt:
         monitoring_thread.join()
