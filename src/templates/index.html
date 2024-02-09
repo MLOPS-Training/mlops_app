@@ -6,6 +6,9 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='index.css') }}" />
   </head>
   <body>
+    <div class="nav-card">
+      <h4><a href="/monitoring">Go to Monitoring</a></h4>
+    </div>
     <div class="input-card">
       <h1>MBTI Personality Prediction</h1>
       <form action="/predict" method="post">
@@ -13,7 +16,7 @@
         <br />
         <textarea id="post" name="post" rows="4" cols="50" required>Write here whatever it comes to your mind..</textarea>
         <br />
-        <input type="radio" id="logistic_regression" name="model" value="logistic_regression" />
+        <input type="radio" id="logistic_regression" name="model" value="logistic_regression" checked />
         <label for="colorGreen">Use logistic regression model</label>
         <br />
         <input type="radio" id="linear_svc" name="model" value="linear_svc" />
