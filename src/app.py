@@ -59,20 +59,22 @@ def home():
 def predict():
     post = request.form["post"]
     model = request.form["model"]
+    
     # Prédire les probabilités pour chaque classe
     if model == "logistic_regression":
-        probabilities = model_log.predict_proba(vectorizer.transform([post]).toarray())[
-            0
-        ]
+        probabilities = model_log.predict_proba(vectorizer.transform([post]).toarray())[0]
     else:
-        probabilities = model_lsvc.decision_function(
-            vectorizer.transform([post]).toarray()
-        )[0]
+        probabilities = model_lsvc.decision_function(vectorizer.transform([post]).toarray())[0]
+        # Rescale the probabilities to ensure they are between 0 and 1
+        probabilities = 1 / (1 + np.exp(-probabilities))
 
     # Obtenir les indices des trois prédictions les plus élevées
     top_predictions_indices = np.argsort(-probabilities)[:3]
     top_predictions = target_encoder.inverse_transform(top_predictions_indices)
     top_probabilities = probabilities[top_predictions_indices]
+
+    # Convertir les probabilités en pourcentages
+    top_probabilities = [f"{prob * 100:.2f}%" for prob in top_probabilities]
 
     # Préparer le chemin de l'image pour la prédiction la plus élevée
     top_prediction = top_predictions[0]
@@ -88,6 +90,8 @@ def predict():
         image_filename=image_filename,
         top_prediction=top_prediction,
     )
+
+
 
 
 @app.route("/monitoring", methods=["GET"])
