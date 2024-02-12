@@ -59,7 +59,7 @@ jobs:
       - name: Merge Staging into Main
         run: |
           git merge staging --no-ff -m "Merge staging into main"
-          git push https://${{ secrets.CESAR_PAT }}@github.com/MLOPS-Training/mlops_app.git main
+          git push origin main
 
   deploy:
     needs: merge-to-main
