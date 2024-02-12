@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import LinearSVC
+from datetime import datetime
 from threading import Thread
 from pathlib import Path
 
@@ -15,6 +16,7 @@ import joblib
 # paths
 CURATED_DATA_PATH = Path("./src/data/curated/curated_data.parquet")
 MODEL_RESULT_OUTPUT_PATH = Path("./src/weights/results")
+MODEL_PERFORMANCE_OUTPUT_PATH = Path("./src/temp/performance_history.csv")
 MODEL_OUTPUT_PATH = Path("./src/weights")
 
 
@@ -92,6 +94,14 @@ def train_and_test_LR(X_train, y_train, X_test, y_test):
     results_df = pd.DataFrame(
         {"True_Labels": y_test, "Predicted_Labels": test_predictions}
     )
+
+    # Calculate model performance and save it
+    performance = (results_df.True_Labels == results_df.Predicted_Labels).sum() / len(
+        results_df.True_Labels
+    )
+    with open(MODEL_PERFORMANCE_OUTPUT_PATH, "a") as file:
+        file.write(f"{datetime.now().isoformat()},logistic_regression,{performance}\n")
+
     results_df.to_parquet(
         MODEL_RESULT_OUTPUT_PATH.joinpath("logistic_regression_results.parquet"),
         index=False,
@@ -128,6 +138,13 @@ def train_and_test_LSVC(X_train, y_train, X_test, y_test):
         MODEL_RESULT_OUTPUT_PATH.joinpath("linearSVC_results.parquet"),
         index=False,
     )
+
+    # Calculate model performance and save it
+    performance = (results_df.True_Labels == results_df.Predicted_Labels).sum() / len(
+        results_df.True_Labels
+    )
+    with open(MODEL_PERFORMANCE_OUTPUT_PATH, "a") as file:
+        file.write(f"{datetime.now().isoformat()},linear_svc,{performance}\n")
 
     print(
         f"Test predictions for LinearSVC model saved at: {MODEL_RESULT_OUTPUT_PATH.joinpath('linearSVC_results.parquet')}"
