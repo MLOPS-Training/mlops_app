@@ -3,9 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" type="text/css" href= "{{ url_for('static', filename='index.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='index.css') }}" />
   </head>
   <body>
+    <div class="nav-card">
+      <h4><a href="/monitoring">Go to Monitoring</a></h4>
+    </div>
     <div class="input-card">
       <h1>MBTI Personality Prediction</h1>
       <form action="/predict" method="post">
@@ -13,12 +16,15 @@
         <br />
         <textarea id="post" name="post" rows="4" cols="50" required>Write here whatever it comes to your mind..</textarea>
         <br />
-        <input id="submit" type="submit" value="Predict" />
+        <input type="radio" id="logistic_regression" name="model" value="logistic_regression" checked />
+        <label for="colorGreen">Use logistic regression model</label>
+        <br />
+        <input type="radio" id="linear_svc" name="model" value="linear_svc" />
+        <label for="colorBlue">Use linear SVC model</label>
+        <br />
+        <input id="submit" type="submit" value="Predict" class="submit" />
       </form>
     </div>
-    <img
-      src="{{ url_for('static', filename='illustration.png') }}"
-      alt="Description"
-     />
+    <img src="{{ url_for('static', filename='illustration.png') }}" alt="Description" />
   </body>
 </html>

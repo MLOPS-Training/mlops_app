@@ -47,9 +47,7 @@ app = Flask(__name__)
 vectorizer = joblib.load("./src/weights/vectorizer.joblib")
 target_encoder = joblib.load("./src/weights/target_encoder.joblib")
 model_log = joblib.load("./src/weights/logistic_regression_model.joblib")
-
-# unused for now
-# model_lsvc = joblib.load("./src/weights/linear_svc_model.joblib")
+model_lsvc = joblib.load("./src/weights/linear_svc_model.joblib")
 
 
 @app.route("/")
@@ -60,13 +58,27 @@ def home():
 @app.route("/predict", methods=["POST"])
 def predict():
     post = request.form["post"]
+    model = request.form["model"]
+
     # Prédire les probabilités pour chaque classe
-    probabilities = model_log.predict_proba(vectorizer.transform([post]).toarray())[0]
+    if model == "logistic_regression":
+        probabilities = model_log.predict_proba(vectorizer.transform([post]).toarray())[
+            0
+        ]
+    else:
+        probabilities = model_lsvc.decision_function(
+            vectorizer.transform([post]).toarray()
+        )[0]
+        # Rescale the probabilities to ensure they are between 0 and 1
+        probabilities = 1 / (1 + np.exp(-probabilities))
 
     # Obtenir les indices des trois prédictions les plus élevées
     top_predictions_indices = np.argsort(-probabilities)[:3]
     top_predictions = target_encoder.inverse_transform(top_predictions_indices)
     top_probabilities = probabilities[top_predictions_indices]
+
+    # Convertir les probabilités en pourcentages
+    top_probabilities = [f"{prob * 100:.2f}%" for prob in top_probabilities]
 
     # Préparer le chemin de l'image pour la prédiction la plus élevée
     top_prediction = top_predictions[0]
@@ -113,6 +125,7 @@ def upload_csv_for_monitoring():
     if header != "type,posts":
         return "Invalid file header, please upload a CSV file with the following header: type,posts"
 
+    file.seek(0)
     filename = secure_filename(file.filename)
     file_path = os.path.join(RAW_DATA_PATH, filename)
     file.save(file_path)
