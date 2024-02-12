@@ -53,12 +53,12 @@ jobs:
       - name: Checkout main branch
         run: git checkout main
 
-      - name: Fetch the dev branch
-        run: git fetch origin dev:dev
+      - name: Fetch the Staging branch
+        run: git fetch origin staging:staging
 
-      - name: Merge Dev into Main
+      - name: Merge Staging into Main
         run: |
-          git merge dev --no-ff -m "Merge dev into main"
+          git merge staging --no-ff -m "Merge staging into main"
           git push origin main
 
   deploy:
