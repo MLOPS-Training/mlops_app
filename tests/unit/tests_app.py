@@ -29,12 +29,26 @@ class TestFlaskApp(unittest.TestCase):
 
     def test_predict(self):
         response = self.app.post(
-            "/predict", data=dict(post="test"), follow_redirects=True
+            "/predict",
+            data=dict(post="test", model="logistic_regression"),
+            follow_redirects=True,
         )
         self.assertEqual(response.status_code, 200, bad_response_200)
 
     def test_predict_missing_post(self):
-        response = self.app.post("/predict", follow_redirects=True)
+        response = self.app.post(
+            "/predict",
+            data=dict(model="logistic_regression"),
+            follow_redirects=True,
+        )
+        self.assertEqual(response.status_code, 400, bad_response_400)
+
+    def test_predict_missing_model(self):
+        response = self.app.post(
+            "/predict",
+            data=dict(post="test"),
+            follow_redirects=True,
+        )
         self.assertEqual(response.status_code, 400, bad_response_400)
 
     def test_upload_csv_for_monitoring(self):

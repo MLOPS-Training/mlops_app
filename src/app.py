@@ -59,12 +59,16 @@ def home():
 def predict():
     post = request.form["post"]
     model = request.form["model"]
-    
+
     # Prédire les probabilités pour chaque classe
     if model == "logistic_regression":
-        probabilities = model_log.predict_proba(vectorizer.transform([post]).toarray())[0]
+        probabilities = model_log.predict_proba(vectorizer.transform([post]).toarray())[
+            0
+        ]
     else:
-        probabilities = model_lsvc.decision_function(vectorizer.transform([post]).toarray())[0]
+        probabilities = model_lsvc.decision_function(
+            vectorizer.transform([post]).toarray()
+        )[0]
         # Rescale the probabilities to ensure they are between 0 and 1
         probabilities = 1 / (1 + np.exp(-probabilities))
 
@@ -90,8 +94,6 @@ def predict():
         image_filename=image_filename,
         top_prediction=top_prediction,
     )
-
-
 
 
 @app.route("/monitoring", methods=["GET"])
