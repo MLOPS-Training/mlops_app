@@ -5,6 +5,21 @@ html {
     background-color: #9DB2BF;
 }
 
+.nav-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    color: #E78895;
+    margin: 10px;
+    width: 100%;
+    height: 25px;
+}
+
 body {
     font-family: 'Barlow', sans-serif;
     display: flex;
@@ -39,7 +54,6 @@ iframe{
     border: none;
     background-color: white;
 }
-
 
 .input-monitor{
     padding: 30px;
