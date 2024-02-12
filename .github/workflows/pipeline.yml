@@ -59,7 +59,7 @@ jobs:
       - name: Merge Dev into Main
         run: |
           git merge dev --no-ff -m "Merge dev into main"
-          git push origin main
+          git push https://${{ secrets.CESAR_PAT }}@github.com/MLOPS-Training/mlops_app.git main
 
   deploy:
     needs: merge-to-main
